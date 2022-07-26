@@ -42,6 +42,7 @@
       "esri/geometry/geometryEngine",
       "esri/layers/support/FeatureFilter",
       "esri/smartMapping/renderers/type",
+      "esri/widgets/LayerList",
     ], (
       Map,
       MapView,
@@ -61,74 +62,75 @@
       geometryEngine,
       FeatureFilter,
       typeRendererCreator,
+      LayerList
 
     ) => {
 
       let editFeature, highlight;
       let features =
-      [
-      {
-            url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/3',
+        [
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/3',
             name: 'Polygons 5000'
-        },       
-        {
-            url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/0',
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/0',
             name: 'Polygons'
-        },
-        {
-            url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/1',
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/1',
             name: 'Lines 5000'
-        },
-        // {
-        //     url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6',
-        //     name: 'Grid lines'
-        // },
-        // {
-        //     url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18',
-        //     name: ' Field points'
-        // },
-        
-        {
-            url :'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/2',
+          },
+          // {
+          //     url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6',
+          //     name: 'Grid lines'
+          // },
+          // {
+          //     url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18',
+          //     name: ' Field points'
+          // },
+
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/2',
             name: 'Lines'
-        },
-      ]  
+          },
+        ]
 
       const projectsLyr = new FeatureLayer({
         url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPDemo/FeatureServer/0",
         title: "Projects"
       });
- 
-    const createLayer = (layerInfo)=>{
-        return  new FeatureLayer({
-            url : layerInfo['url'],
-            title : layerInfo['name']
+
+      const createLayer = (layerInfo) => {
+        return new FeatureLayer({
+          url: layerInfo['url'],
+          title: layerInfo['name']
         })
       }
 
       const layers = features.map((feature) => {
-          return createLayer(feature);
-        });
-        const map = new Map({
-            basemap: "satellite",
-            layers : layers
-        });
+        return createLayer(feature);
+      });
+      const map = new Map({
+        basemap: "satellite",
+        layers: layers
+      });
 
       const view = new MapView({
         container: "viewDiv",
         map: map,
-        center : [30,30],
-        zoom : 3
+        center: [30, 30],
+        zoom: 3
       });
 
       view.when(() => {
-            layers[0].queryFeatures().then(function (results) {
-                view.goTo({
-                    center: [30.82, 31.15],
-                    zoom: 14,
-                }, { duration: 2500 });
-            });
-        })
+        layers[0].queryFeatures().then(function (results) {
+          view.goTo({
+            center: [30.82, 31.15],
+            zoom: 14,
+          }, { duration: 2500 });
+        });
+      })
 
       const typeParams = {
         layer: projectsLyr,
@@ -158,7 +160,7 @@
         })
         .catch((error) => {
           console.error("there was an error: ", error);
-       });
+        });
 
 
       const lyrInfos = {
@@ -297,6 +299,20 @@
         content: editor
       });
 
+      let layerList = new LayerList({
+        view: view
+      });
+      layerListExpand = new Expand({
+        expandTooltip: "Expand layer list",
+        view: view,
+        content: layerList
+      });
+
+
+      view.ui.add(layerListExpand, {
+        position: "top-left"
+      });
+
       view.ui.add(bkExpand, "top-right");
       view.ui.add(editorExpand, "top-right");
       view.ui.add(homeWidget, "top-left");
@@ -311,9 +327,9 @@
         editor.messages['selectFeature'] = "select project";
         editor.messages['selectFeatureToEdit'] = "Select a project to start editing"
 
-        document.getElementById("nextBtn").addEventListener("click" , ()=>{
-        window.location.href = "ElevationGrid.html";
-      })
+        document.getElementById("nextBtn").addEventListener("click", () => {
+          window.location.href = "ElevationGrid.html";
+        })
       })
     });
   </script>
@@ -324,7 +340,7 @@
   <div id="viewDiv">
     <div id="formDiv"></div>
     <!-- <button id="nextBtn" class="esri-widget esri-button">Next</button> -->
-    <div style="padding: 8px;" class="esri-widget" id="nextBtn" >
+    <div style="padding: 8px;" class="esri-widget" id="nextBtn">
       <i class="esri-icon-right-arrow-circled \ue617"></i>
     </div>
 

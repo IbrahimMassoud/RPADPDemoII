@@ -140,6 +140,7 @@
       "esri/smartMapping/renderers/type",
       "esri/widgets/FeatureTable",
       "esri/core/reactiveUtils",
+      "esri/layers/ImageryLayer"
     ], (
       Map,
       MapView,
@@ -161,6 +162,7 @@
       typeRendererCreator,
       FeatureTable,
       reactiveUtils,
+      ImageryLayer
 
     ) => {
 
@@ -318,6 +320,16 @@
           type: "oid",
         },
         {
+          name: "X",
+          alias: "X",
+          type: "double",
+        },
+        {
+          name: "Y",
+          alias: "Y",
+          type: "double",
+        },
+        {
           name: "elevation",
           alias: "Elevation",
           type: "double",
@@ -399,8 +411,8 @@
               .then(function (response) {
                 let newLyr;
                 let intersectsPoints = response.features
-                console.log(intersectsPoints)
                 intersectsPoints.forEach(point => {
+                  let pointCenter = point.geometry.extent.center;
                   pointsFeatures.push(
                     new Graphic({
                       geometry: point.geometry,
@@ -408,6 +420,8 @@
                       {
                           elevation: point.attributes.elevation,
                           name: point.attributes.name,
+                          X: pointCenter.x ,
+                          Y: pointCenter.y 
                           // WT: point.attributes.WT,
                           // K: point.attributes.K,
                           // L: point.attributes.L,
@@ -440,6 +454,7 @@
                 checkboxEle.onchange = () => {
                     toggleFeatureTable();
                   };
+                  setTimeout(()=>{
                   featureTable = new FeatureTable({
                   view: view, 
                   layer: newlyr,
@@ -448,6 +463,7 @@
                   },
                   container: tableDiv
                 });
+                }, 5000)
 
                 document.getElementById("mainDiv").style.visibility = "visible"
                 
@@ -464,12 +480,17 @@
 
           });
 
-
         })
 
-        
       })
+      let layer = new ImageryLayer({
+        // URL to the imagery service
+        url: "https://landscape6.arcgis.com/arcgis/rest/services/World_Elevation_GMTED/ImageServer"
+      });
+      console.log(map.ground)
+      map.layers.add(layer,0)
 
+    
 
     });
   </script>

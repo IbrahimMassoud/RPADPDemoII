@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>
-    Loading ESA Digital Map
+    Elevation grid
   </title>
   <link rel="icon" href="Images/EPADPLogo.png">
 
@@ -385,14 +385,13 @@
           excludeOutsideFeatures(gridLines, geometry)
           excludeOutsideFeatures(gridPoints, geometry)
 
-        })
-
-        getLayerView(gridPoints)
+        }).then(()=>{
+          getLayerView(gridPoints)
           .then((returnedLayerView) => {
 
             let query = gridPoints.createQuery();
             query.geometry = geometry
-            query.spatialRelationship = "contains";
+            query.spatialRelationship = "intersects";
             query.returnGeometry = true;
             query.outFields = ["*"];
 
@@ -467,6 +466,10 @@
 
           });
 
+
+        })
+
+        
       })
 
 

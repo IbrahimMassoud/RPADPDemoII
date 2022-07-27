@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <title>
-        Pre-Design Import
+        Loading Field Investigation Data
     </title>
     <link rel="icon" href="../../Images/EPADPLogo.png">
 
@@ -131,57 +131,6 @@
             font-weight: 700;
         }
 
-        .infoAlert {
-            -webkit-animation: cssAnimation 15s forwards;
-            animation: cssAnimation 15s forwards;
-        }
-
-        .success {
-            -webkit-animation: cssAnimation 10s forwards;
-            animation: cssAnimation 10s forwards;
-            background-color: rgb(46, 148, 70);
-        }
-
-        #buttonDiv {
-            padding: 12px;
-        }
-
-        @keyframes cssAnimation {
-            0% {
-                opacity: 0.8;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-            }
-
-            100% {
-                display: "none";
-            }
-        }
-
-        @-webkit-keyframes cssAnimation {
-            0% {
-                opacity: 0.8;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-            }
-
-            100% {
-                display: "none";
-            }
-        }
-
         header ul {
             list-style-type: none;
             margin: 0;
@@ -238,7 +187,8 @@
             "esri/smartMapping/renderers/type",
             "esri/widgets/FeatureTable",
             "esri/core/reactiveUtils",
-            "esri/layers/ImageryLayer"
+            "esri/layers/ImageryLayer",
+            "esri/webmap/Bookmark"
         ], (
             Map,
             MapView,
@@ -260,25 +210,70 @@
             typeRendererCreator,
             FeatureTable,
             reactiveUtils,
-            ImageryLayer
+            ImageryLayer,
+            Bookmark
 
         ) => {
 
             let geometry, intersectsPoints , id;
 
-            const projectsLyr = new FeatureLayer({
-                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPDemo/FeatureServer/0",
-                title: "Projects"
-            });
-            const gridLines = new FeatureLayer({
-                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6",
-                title: "Grid lines"
-            });
+            let features =
+        [
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/3',
+            name: 'Polygons 5000'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/0',
+            name: 'Polygons'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/1',
+            name: 'Lines 5000'
+          },
+          {
+              url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6',
+              name: 'Grid lines'
+          },
+          {
+              url : 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18',
+              name: 'Field points'
+          },
 
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/2',
+            name: 'Lines'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/14',
+            name : 'Collector Boundary'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/13',
+            name : 'Collectors'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/4',
+            name : 'Area Boundary'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/9',
+            name : 'Manholes'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/10',
+            name : 'Laterals'
+          }
+        ]
+
+            const gridLines = new FeatureLayer({
+                url: features[3]['url'],
+                title:  features[3]['name']
+            });
 
             const gridPoints = new FeatureLayer({
-                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18",
-                title: "Field points",
+                url: features[4]['url'],
+                title: features[4]['name'],
                 renderer: {
                     type: "simple",
                     symbol: {
@@ -291,6 +286,33 @@
                         }
                     }
                 }
+            });
+
+            const collectorBoundry = new FeatureLayer({
+                url: features[6]['url'],
+                title:  features[6]['name'],
+                definitionExpression : "Id = '4'"
+
+            });
+
+            const collectors = new FeatureLayer({
+                url: features[7]['url'],
+                title:  features[7]['name']
+            });
+
+            const areaBoundry = new FeatureLayer({
+                url: features[8]['url'],
+                title:  features[8]['name']
+            });
+
+            const manholes = new FeatureLayer({
+                url: features[9]['url'],
+                title:  features[9]['name']
+            });
+
+            const laterals = new FeatureLayer({
+                url: features[10]['url'],
+                title:  features[10]['name']
             });
 
             let pointsFeatures = []
@@ -378,7 +400,16 @@
 
             });
 
-            map.addMany([gridLines, gridPoints, projectsLyr])
+            map.addMany([
+                gridLines,
+                collectorBoundry,
+                areaBoundry,
+                laterals,
+                collectors,
+                gridPoints, 
+                manholes
+            ])
+
 
             const directionParams = {
                 layer: gridLines,
@@ -402,47 +433,17 @@
                     console.error("there was an error: ", error);
                 });
 
-            const typeParams = {
-                layer: projectsLyr,
-                view: view,
-                field: "Type",
-                legendOptions: {
-                    title: "Type"
-                }
-            };
-
-            typeRendererCreator
-                .createRenderer(typeParams)
-                .then((response) => {
-                    response.renderer.uniqueValueInfos.map(each => {
-                        each.symbol.color['a'] = 0.5;
-                        each.symbol.outline = {
-                            width: 0.5,
-                            color: 'black'
-                        }
-                    })
-
-                    response.renderer.defaultSymbol = null
-                    projectsLyr.renderer = response.renderer;
-                    if (!map.layers.includes(projectsLyr)) {
-                        map.add(projectsLyr);
-                    }
-                })
-                .catch((error) => {
-                    console.error("there was an error: ", error);
-                });
-
             const getLayerView = (layer) => {
                 return view
                     .whenLayerView(layer)
             }
 
-            const excludeOutsideFeatures = (layer, geometry) => {
+            const excludeOutsideFeatures = (layer, geometry , relation) => {
                 getLayerView(layer)
                     .then((returnedLayerView) => {
                         let layerView = returnedLayerView;
                         layerView.filter = new FeatureFilter({
-                            spatialRelationship: "intersects",
+                            spatialRelationship: relation ,
                             geometry: geometry,
                         });
                     })
@@ -457,13 +458,61 @@
                 editingEnabled: true,
                 visibleElements: {
                     time: false
+                },
+                bookmarks: [
+            new Bookmark({
+              name: "Angeles National Forest",
+              viewpoint: {
+                targetGeometry: {
+                  type: "extent",
+                  spatialReference: {
+                    wkid: 102100
+                  },
+                  xmin: -13139131.948889678,
+                  ymin: 4047767.23531948,
+                  xmax: -13092887.54677721,
+                  ymax: 4090610.189673263
                 }
+              }
+            }),
+            new Bookmark({
+              name: "Crystal Lake",
+              viewpoint: {
+                targetGeometry: {
+                  type: "extent",
+                  spatialReference: {
+                    wkid: 102100
+                  },
+                  xmin: -13125852.551697943,
+                  ymin: 4066904.1101411926,
+                  xmax: -13114291.451169826,
+                  ymax: 4077614.8487296384
+                }
+              }
+            }),
+            new Bookmark({
+              name: "San Fernando",
+              viewpoint: {
+                targetGeometry: {
+                  type: "extent",
+                  spatialReference: {
+                    latestWkid: 3857,
+                    wkid: 102100
+                  },
+                  xmin: -13185668.186639601,
+                  ymin: 4066176.418652561,
+                  xmax: -13183855.195875114,
+                  ymax: 4067515.260976006
+                }
+              }
+            })
+          ]
             });
 
             const bkExpand = new Expand({
                 view: view,
                 content: bookmarks,
-                expandTooltip: "Expand bookmarks tooltip",
+                expandTooltip: "Expand bookmarks",
                 expanded: false
             });
 
@@ -478,20 +527,25 @@
             view.ui.add(bkExpand, "top-left");
             view.ui.add(homeWidget, "top-left");
             view.ui.add(legendExpand, "top-left");
-            view.ui.add("buttonDiv", "top-right")
+            view.ui.add('mainDiv', "top-right");
+
+
 
             view.when(() => {
 
-                projectsLyr.queryFeatures().then(function (results) {
-                    geometry = results.features[results.features.length - 1].geometry;
+                collectorBoundry.queryFeatures().then(function (results) {
+                    geometry = results.features[0].geometry; //the 4th one
                 }).then(() => {
 
-                    projectsLyr.queryFeatures().then(function (results) {
+                    collectorBoundry.queryFeatures().then(function (results) {
                         view.goTo(geometry, { duration: 2500 });
                     });
 
-                    excludeOutsideFeatures(gridLines, geometry)
-                    excludeOutsideFeatures(gridPoints, geometry)
+                    excludeOutsideFeatures(gridLines, geometry,"intersects")
+                    excludeOutsideFeatures(gridPoints, geometry,"intersects")
+                    excludeOutsideFeatures(manholes, geometry,"intersects")
+                    excludeOutsideFeatures(laterals, geometry,"contains")
+                    excludeOutsideFeatures(collectors, geometry,"intersects")
 
                 }).then(() => {
                     getLayerView(gridPoints)
@@ -541,23 +595,13 @@
                                     const appContainer = document.getElementById("appContainer");
                                     const tableContainer = document.getElementById("tableContainer");
                                     const tableDiv = document.getElementById("tableDiv");
-
-                                    let featureTable;
                                     const checkboxEle = document.getElementById("checkboxId");
-                                    const labelText = document.getElementById("labelText");
-                                    view.ui.add(document.getElementById("mainDiv"), "top-right");
 
+
+                                    
                                     checkboxEle.onchange = () => {
                                         toggleFeatureTable();
                                     };
-
-                                    featureTable = new FeatureTable({
-                                        view: view,
-                                        layer: newlyr,
-                                        tableTemplate: {
-                                        },
-                                        container: tableDiv
-                                    });
 
                                     function toggleFeatureTable() {
                                         if (!checkboxEle.checked) {
@@ -569,7 +613,16 @@
                                         }
                                     }
 
-                                    
+
+                                    let featureTable;
+                                    featureTable = new FeatureTable({
+                                        view: view,
+                                        layer: newlyr,
+                                        tableTemplate: {
+                                        },
+                                        container: tableDiv
+                                    });
+
                                     featureTable.on("selection-change", (changes) => {
                                         changes.removed.forEach((item) => {
                                             const data = pointsFeatures.find((data) => {
@@ -609,35 +662,12 @@
                 })
             })
 
-            const displayResult = (cssClassName, message) => {
-
-                var infoDiv = document.getElementById("info");
-                infoDiv.className = ""
-                infoDiv.textContent = ''
-
-                setTimeout(function () {
-                    infoDiv.className = `esri-widget esri-component ${cssClassName}`
-                    const node = document.createElement("div");
-                    node.innerHTML = message
-                    node.className = `infoStyle ${cssClassName}`
-                    infoDiv.appendChild(node);
-                }, 1000)
-            }
+          
             let layer = new ImageryLayer({
                 // URL to the imagery service
                 url: "https://landscape6.arcgis.com/arcgis/rest/services/World_Elevation_GMTED/ImageServer"
             });
             map.layers.add(layer, 0)
-
-            document.getElementById("importBtn").addEventListener("click", () => {
-
-                document.getElementById("switchContainer").style.visibility = "visible"
-                document.getElementById("tableContainer").style.display = "block"
-                document.getElementById("buttonDiv").style.display = "none"
-                document.getElementById("mainDiv").style.visibility = "visible"
-
-                displayResult("success", " Data imported successfully ")
-            })
 
         });
     </script>
@@ -648,36 +678,24 @@
 
     <header>
         <ul>
-            <li><a href="Export.html">Export</a></li>
-            <li><a class="active" href="#">Import</a></li>
-    
+            <li><a class="active" href="#">Field Investigation Data</a></li>
+            <li><a  href="">Colector system boundry</a></li>
         </ul>
     </header>
     
 
     <div id="appContainer">
         <div id="viewDiv"></div>
-        <div style="display: none ;" id="tableContainer" class="container">
+        <div id="tableContainer" class="container">
             <div id="tableDiv"></div>
-        </div>
-        
-        <div style="visibility:hidden ;" id="mainDiv" class="esri-widget">
-            <div id="switchContainer" style="visibility: hidden;">
-                <label class="switch">
-                    <input id="checkboxId" type="checkbox" checked="yes" />
-                    <span class="slider round"></span>
-                </label>
-                <label class="labelText" id="labelText">Hide elevation points table</label>
-            </div>
-            <hr>
-            <div id="info" class="esri-widget infoAlert"></div>
-        </div>
-
-        <div id="buttonDiv" class="esri-widget">
-            <label>Import data from investigation team</label>
-            <button id="importBtn" class="esri-widget esri-button">Import</button>
-        </div>
-
+           
+    </div>
+    <div id="mainDiv" class="esri-widget">
+        <label class="switch">
+            <input id="checkboxId" type="checkbox" checked="yes" />
+            <span class="slider round"></span>
+        </label>
+        <label class="labelText" id="labelText">Hide elevation points table</label>
     </div>
 </body>
 

@@ -144,7 +144,7 @@
             padding: 10px 15px;
             width: 253px;
         }
-        ul {
+        header ul {
         list-style-type: none;
         margin: 0;
         padding: 0;
@@ -152,7 +152,7 @@
         background-color: #333;
         }
 
-        li {
+        header li {
         float: left;
         border-right:1px solid #bbb;
         }
@@ -262,7 +262,7 @@
 
         ) => {
 
-            let geometry;
+            let geometry , id;
             const projectsLyr = new FeatureLayer({
                 url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPDemo/FeatureServer/0",
                 title: "Projects"
@@ -569,6 +569,42 @@
                                             labelText.innerHTML = "Hide elevation points table";
                                         }
                                     }
+
+                                    
+                                    featureTable.on("selection-change", (changes) => {
+                                        changes.removed.forEach((item) => {
+                                            const data = pointsFeatures.find((data) => {
+                                                return data.feature === item.feature;
+                                            });
+                                        });
+
+                                        changes.added.forEach((item) => {
+                                            const feature = item.feature;
+                                            pointsFeatures.push({
+                                                feature: feature
+                                            });
+
+                                            if (
+                                                feature.attributes.OBJECTID_1 !== id &&
+                                                view.popup.visible === true
+                                            ) {
+                                                featureTable.deselectRows(selectedFeature);
+                                                view.popup.close();
+                                            }
+                                        });
+                                    });
+
+                                    reactiveUtils.watch(
+                                        () => view.popup.viewModel.active,
+                                        () => {
+                                            selectedFeature = view.popup.selectedFeature;
+                                            if (selectedFeature !== null && view.popup.visible !== false) {
+                                                featureTable.clearSelection();
+                                                featureTable.selectRows(view.popup.selectedFeature);
+                                                id = selectedFeature.getObjectId();
+                                            }
+                                        }
+                                    );
                                 })
                         });
                 })
@@ -607,11 +643,14 @@
 
 <body>
     
-<ul>
-    <li><a class="active" href="#">Export</a></li>
-    <li><a  href="Import.html">Import</a></li>
+    <header>
+        <ul>
+            <li><a class="active" href="#">Export</a></li>
+            <li><a  href="Import.html">Import</a></li>
+        
+        </ul>
+    </header>
 
-</ul>
     <div id="appContainer">
         <div id="viewDiv"></div>
         <div id="tableContainer" class="container">

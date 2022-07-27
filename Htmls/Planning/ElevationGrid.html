@@ -199,7 +199,6 @@
 
     ) => {
 
-
       let  geometry;
 
       const projectsLyr = new FeatureLayer({
@@ -209,24 +208,6 @@
       const gridLines = new FeatureLayer({
         url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6",
         title: "Grid lines"
-      });
-
-
-      const gridPoints = new FeatureLayer({
-        url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18",
-        title: "Field points",
-        renderer: {
-          type: "simple",
-          symbol: {
-            type: "simple-marker",
-            size: 6,
-            color: "blue",
-            outline: {
-              width: 0.5,
-              color: "black"
-            }
-          }
-        }
       });
 
       const map = new Map({
@@ -241,7 +222,7 @@
 
       });
 
-      map.addMany([gridLines, gridPoints, projectsLyr])
+      map.addMany([gridLines, projectsLyr])
 
       const directionParams = {
         layer: gridLines,
@@ -342,82 +323,7 @@
       view.ui.add(homeWidget, "top-left");
       view.ui.add(legendExpand, "top-left");
 
-
       view.when(() => {
-
-
-        let pointsFeatures = []
-        let pointsFields = [{
-          name: "ObjectID_1",
-          alias: "ObjectID",
-          type: "oid",
-        },
-        {
-          name: "X",
-          alias: "X",
-          type: "double",
-        },
-        {
-          name: "Y",
-          alias: "Y",
-          type: "double",
-        },
-        {
-          name: "elevation",
-          alias: "Elevation",
-          type: "double",
-        },
-        {
-          name: "name",
-          alias: "Name",
-          type: "string",
-        },
-        {
-          name: "WT",
-          alias: "WT",
-          type: "string",
-        },
-        {
-          name: "K",
-          alias: "K",
-          type: "string",
-        },
-        {
-          name: "L",
-          alias: "L",
-          type: "string",
-        },
-        {
-          name: "GWS",
-          alias: "GWS",
-          type: "string",
-        },
-        {
-          name: "Soil_Text",
-          alias: "Soil Text",
-          type: "string",
-        },
-        {
-          name: "Clay",
-          alias: "Clay",
-          type: "string",
-        },
-        {
-          name: "EC",
-          alias: "EC",
-          type: "string",
-        },
-        {
-          name: "sn",
-          alias: "sn",
-          type: "string",
-        },
-        {
-          name: "CaCO3",
-          alias: "CaCO3",
-          type: "string",
-        }
-        ]
 
         projectsLyr.queryFeatures().then(function (results) {
           geometry = results.features[results.features.length - 1].geometry;
@@ -428,102 +334,15 @@
           });
 
           excludeOutsideFeatures(gridLines, geometry)
-          excludeOutsideFeatures(gridPoints, geometry)
-
-        }).then(()=>{
-          getLayerView(gridPoints)
-          .then((returnedLayerView) => {
-
-            let query = gridPoints.createQuery();
-            query.geometry = geometry
-            query.spatialRelationship = "intersects";
-            query.returnGeometry = true;
-            query.outFields = ["*"];
-
-            gridPoints.queryFeatures(query)
-              .then(function (response) {
-                let newLyr;
-                let intersectsPoints = response.features
-                intersectsPoints.forEach(point => {
-                  let pointCenter = point.geometry.extent.center;
-                  pointsFeatures.push(
-                    new Graphic({
-                      geometry: point.geometry,
-                      attributes:// point.attributes
-                      {
-                          elevation: point.attributes.elevation,
-                          name: point.attributes.name,
-                          X: pointCenter.x ,
-                          Y: pointCenter.y 
-                          // WT: point.attributes.WT,
-                          // K: point.attributes.K,
-                          // L: point.attributes.L,
-                          // GWS: point.attributes.GWS,
-                          // Soil_Text: point.attributes.Soil_Text,
-                          // Clay: point.attributes.Clay,
-                          // sn: point.attributes.sn,
-                          // EC: point.attributes.EC,
-                          // CaCO3: point.attributes.CaCO3,
-                      }
-                      ,
-                    })
-                  );
-                  newlyr = new FeatureLayer({
-                    source: pointsFeatures,
-                    objectIdField: "ObjectID_1",
-                    fields: pointsFields,
-                  });
-                })
-
-                const appContainer = document.getElementById("appContainer");
-                const tableContainer = document.getElementById("tableContainer");
-                const tableDiv = document.getElementById("tableDiv");
-
-                let featureTable;
-                const checkboxEle = document.getElementById("checkboxId");
-                const labelText = document.getElementById("labelText");
-                view.ui.add(document.getElementById("mainDiv"), "top-right");
-
-                checkboxEle.onchange = () => {
-                    toggleFeatureTable();
-                  };
-                  setTimeout(()=>{
-                  featureTable = new FeatureTable({
-                  view: view, 
-                  layer: newlyr,
-                  tableTemplate: {
-                    
-                  },
-                  container: tableDiv
-                });
-                }, 5000)
-
-                document.getElementById("mainDiv").style.visibility = "visible"
-                
-                function toggleFeatureTable() {
-                  if (!checkboxEle.checked) {
-                    appContainer.removeChild(tableContainer);
-                    labelText.innerHTML = "Show elevation points table";
-                  } else {
-                    appContainer.appendChild(tableContainer);
-                    labelText.innerHTML = "Hide elevation points table";
-                  }
-                }
-              })
-
-          });
-
         })
-
-      })
+        })
+        
+        
       let layer = new ImageryLayer({
         // URL to the imagery service
         url: "https://landscape6.arcgis.com/arcgis/rest/services/World_Elevation_GMTED/ImageServer"
       });
-      console.log(map.ground)
       map.layers.add(layer,0)
-
-    
 
     });
   </script>
@@ -539,16 +358,6 @@
       <li><a href="ElevationPoint.html">Create elevation points</a></li>
     </ul>
     <div id="viewDiv"></div>
-    <div id="tableContainer" class="container">
-      <div id="tableDiv"></div>
-    </div>
-    <div style="visibility: hidden;" id="mainDiv" class="esri-widget">
-      <label class="switch">
-        <input id="checkboxId" type="checkbox" checked="yes" />
-        <span class="slider round"></span>
-      </label>
-      <label class="labelText" id="labelText">Hide elevation points table</label>
-    </div>
   </div>
 </body>
 

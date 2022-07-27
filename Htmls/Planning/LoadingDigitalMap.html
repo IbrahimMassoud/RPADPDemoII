@@ -34,10 +34,44 @@
       overflow-x: hidden;
       overflow-y: auto;
     }
-    #formDiv{
+
+    #formDiv {
       padding: 10px;
       visibility: hidden;
-    } 
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #333;
+    }
+
+    li {
+      float: left;
+      border-right: 1px solid #bbb;
+    }
+
+    li:last-child {
+      border-right: none;
+    }
+
+    li a {
+      display: block;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    li a:hover:not(.active) {
+      background-color: #111;
+    }
+
+    .active {
+      background-color: #04AA6D;
+    }
   </style>
 
   <script>
@@ -82,82 +116,6 @@
 
     ) => {
 
-      // // let gridsLayerView, pointsLayerView;
-      // const colors = ["#d92b30", "#3cccb4", 'black'];
-
-      // const commonProperties = {
-      //   type: "simple-line",
-      //   width: "2px",
-      //   style: "solid"
-      // };
-
-      // const horizontal = {
-      //   ...commonProperties,
-      //   color: colors[0]
-      // };
-
-      // const vertical = {
-      //   ...commonProperties,
-      //   color: colors[1]
-      // };
-      // const otherSym = {
-      //   ...commonProperties,
-      //   color: colors[2]
-      // };
-
-
-      // const projectsLyr = new FeatureLayer({
-      //   url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPDemo/FeatureServer/0",
-      //   title: "Projects"
-      // });
-      // const gridLines = new FeatureLayer({
-      //   url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6",
-      //   title: "Grid lines"
-      // });
-
-
-      // const gridsRenderer = {
-      //   type: "unique-value",
-      //   legendOptions: {
-      //     title: " "
-      //   },
-      //   defaultSymbol: otherSym,
-      //   defaultLabel: "Other",
-      //   field: "Direction",
-
-      //   uniqueValueInfos: [
-      //     {
-      //       value: 0,
-      //       symbol: horizontal,
-      //       label: "Horizontal"
-      //     },
-      //     {
-      //       value: 1,
-      //       symbol: vertical,
-      //       label: "Vertical"
-      //     }
-      //   ]
-      // };
-
-      // gridLines.renderer = gridsRenderer
-
-      // const gridPoints = new FeatureLayer({
-      //   url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18",
-      //   title: "Field points",
-      //   renderer: {
-      //     type: "simple",
-      //     symbol: {
-      //       type: "simple-marker",
-      //       size: 6,
-      //       color: "yellow",
-      //       outline: {
-      //         width: 0.5,
-      //         color: "white"
-      //       }
-      //     }
-      //   }
-      // });
-
       const map = new Map({
         basemap: "satellite",
       });
@@ -169,160 +127,15 @@
         zoom: 5,
 
       });
-      view.when(()=>{
+      view.when(() => {
         view.ui.add("formDiv", "top-right");
         document.getElementById("formDiv").style.visibility = "visible"
       })
 
-      document.getElementById("btnSubmit").addEventListener("click" , ()=>{
+      document.getElementById("btnSubmit").addEventListener("click", () => {
         window.location.href = "DesignAreaBoundry.html";
       })
 
-
-
-      // const typeParams = {
-      //   layer: projectsLyr,
-      //   view: view,
-      //   field: "Type",
-      //   legendOptions: {
-      //     title: "Type"
-      //   }
-      // };
-
-      // typeRendererCreator
-      //   .createRenderer(typeParams)
-      //   .then((response) => {
-      //     response.renderer.uniqueValueInfos.map(each => {
-      //       each.symbol.color['a'] = 0.5;
-      //       each.symbol.outline = {
-      //         width: 0.5,
-      //         color: 'black'
-      //       }
-      //     })
-
-      //     response.renderer.defaultSymbol = null
-      //     projectsLyr.renderer = response.renderer;
-      //     if (!map.layers.includes(projectsLyr)) {
-      //       map.add(projectsLyr);
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.error("there was an error: ", error);
-      //   });
-
-
-      // const lyrInfos = {
-      //   layer: projectsLyr,
-      //   groupDisplay: "sequential",
-      //   formTemplate: {
-      //     title: "Project information",
-      //     elements: [
-      //       {
-      //         type: "group",
-      //         label: "Basic information",
-      //         elements: [
-      //           {
-      //             type: "field",
-      //             fieldName: "ArabicName",
-      //             label: "Arabic Name"
-      //           },
-      //           {
-      //             type: "field",
-      //             fieldName: "EnglishName",
-      //             label: "English Name"
-      //           },
-      //           {
-      //             type: "field",
-      //             fieldName: "Type",
-      //             label: "Type"
-      //           },
-      //           {
-      //             type: "field",
-      //             fieldName: "Area",
-      //             label: "Area"
-      //           }
-      //         ]
-      //       },
-      //       {
-      //         type: "group",
-      //         label: "Location data",
-      //         elements: [
-      //           {
-      //             type: "field",
-      //             fieldName: "Sector",
-      //             label: "Sector"
-      //           },
-      //           {
-      //             type: "field",
-      //             fieldName: "Directorate",
-      //             label: "Directorate"
-      //           },
-      //           {
-      //             type: "field",
-      //             fieldName: "Section",
-      //             label: "Section"
-      //           },
-      //           {
-      //             type: "field",
-      //             fieldName: "Governorate",
-      //             label: "Governorate"
-      //           }
-
-      //         ]
-      //       },
-      //       {
-      //         type: "group",
-      //         label: "Drains",
-      //         elements: [
-      //           {
-      //             type: "field",
-      //             fieldName: "DrainEnglishName",
-      //             label: "Drain English Name"
-      //           },
-      //           {
-      //             type: "field",
-      //             fieldName: "DrainArabicName",
-      //             label: "Drain Arabic Name"
-      //           }
-      //         ]
-      //       }
-      //     ]
-      //   }
-      // };
-
-
-
-      // const getLayerView = (layer) => {
-      //   return view
-      //     .whenLayerView(layer)
-      // }
-
-      // const excludeOutsideFeatures = (layer, geometry) => {
-      //   getLayerView(layer)
-      //     .then((returnedLayerView) => {
-      //       let layerView = returnedLayerView;
-      //       layerView.filter = new FeatureFilter({
-      //         spatialRelationship: "intersects",
-      //         geometry: geometry,
-      //       });
-      //     })
-      // }
-
-      // projectsLyr.queryFeatures().then(function (results) {
-      //   geometry = results.features[results.features.length - 1].geometry;
-      // }).then(() => {
-
-      //   projectsLyr.queryFeatures().then(function (results) {
-      //     view.goTo(geometry, { duration: 2500 });
-      //   });
-
-      //   excludeOutsideFeatures(gridLines, geometry)
-      //   excludeOutsideFeatures(gridPoints, geometry)
-      // })
-
-      // let legend = new Legend({
-      //   view: view,
-      // })
       let homeWidget = new Home({ view: view });
       let bookmarks = new Bookmarks({
         view: view,
@@ -340,45 +153,10 @@
       });
 
 
-      // const legendExpand = new Expand({
-      //   view: view,
-      //   content: legend,
-      //   expandTooltip: "Expand legend",
-      //   expanded: false
-      // });
-
-
-      // const editor = new Editor({
-      //   view: view,
-      //   layerInfos: [lyrInfos],
-      //   allowedWorkflows: ["update", "create"],
-      // });
-
-      // editorExpand = new Expand({
-      //   expandIconClass: "esri-icon-edit \ue61b",
-      //   expandTooltip: "Expand editor tooltip",
-      //   view: view,
-      //   content: editor
-      // });
-
       view.ui.add(bkExpand, "top-left");
-      // view.ui.add(editorExpand, "top-right");
       view.ui.add(homeWidget, "top-left");
-      // view.ui.add(legendExpand, "top-left");
 
-
-      // view.when(() => {
-      //   editor.messages['createFeatures'] = " ";
-      //   editor.messages['editFeatures'] = "Edit projects";
-      //   editor.messages['editFeature'] = "Edit project";
-      //   editor.messages['selectFeature'] = "select project";
-      //   editor.messages['selectFeatureToEdit'] = "Select a project to start editing"
-      // })
     });
-
-    // window.onload = function () {
-    //   console.log(document.getElementById("uploadBtn"))
-    // }
 
   </script>
 
@@ -386,6 +164,13 @@
 </head>
 
 <body>
+
+  <ul>
+    <li><a class="active" href="#">Loading ESA Digital Map</a></li>
+    <li><a href="DesignAreaBoundry.html">Design area boundry</a></li>
+    <li><a href="ElevationGrid.html">Create elevation grids</a></li>
+    <li><a href="ElevationPoint.html">Create elevation points</a></li>
+  </ul>
   <div id="viewDiv">
     <div id="formDiv" class="esri-widget scroller esri-component">
       <div class="btns">

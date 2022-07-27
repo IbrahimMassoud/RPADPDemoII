@@ -1,0 +1,636 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>
+        Pre-Design Export
+    </title>
+    <link rel="icon" href="../../Images/EPADPLogo.png">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.23/"></script>
+
+    <style>
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            flex: 1;
+        }
+
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .esri-popup--is-docked-top-right .esri-popup__main-container {
+            max-height: 100%;
+        }
+
+        #appContainer {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 22px;
+            vertical-align: middle;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: 0.4s;
+            transition: 0.4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 1px;
+            background-color: white;
+            -webkit-transition: 0.4s;
+            transition: 0.4s;
+        }
+
+        input:checked+.slider {
+            background-color: #2196f3;
+        }
+
+        input:focus+.slider {
+            box-shadow: 0 0 1px #2196f3;
+        }
+
+        input:checked+.slider:before {
+            -webkit-transform: translateX(20px);
+            -ms-transform: translateX(20px);
+            transform: translateX(20px);
+        }
+
+        /* Rounded sliders */
+
+        .slider.round {
+            border-radius: 20px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .labelText {
+            padding-left: 5px;
+            font-size: 15px;
+        }
+
+        #mainDiv {
+            padding: 8px;
+        }
+
+
+        #info {
+            border-radius: 0px;
+            padding: 15px 15px;
+        }
+
+        .infoStyle {
+            background-color: white;
+            border-radius: 5px;
+            font-size: larger;
+            font-weight: 700;
+        }
+
+        .infoAlert {
+            -webkit-animation: cssAnimation 15s forwards;
+            animation: cssAnimation 15s forwards;
+        }
+
+        .success {
+            -webkit-animation: cssAnimation 10s forwards;
+            animation: cssAnimation 10s forwards;
+            background-color: rgb(46, 148, 70);
+        }
+        #buttonDiv{
+            padding: 10px 15px;
+            width: 253px;
+        }
+        ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+  border-right:1px solid #bbb;
+}
+
+li:last-child {
+  border-right: none;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover:not(.active) {
+  background-color: #111;
+}
+
+.active {
+  background-color: #04AA6D;
+}
+
+        @keyframes cssAnimation {
+            0% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+
+            100% {
+                display: "none";
+            }
+        }
+
+        @-webkit-keyframes cssAnimation {
+            0% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+
+            100% {
+                display: "none";
+            }
+        }
+    </style>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/Legend",
+            "esri/layers/GeoJSONLayer",
+            "esri/widgets/Home",
+            "esri/smartMapping/renderers/color",
+            "esri/smartMapping/symbology/color",
+            "esri/smartMapping/symbology/support/colorRamps",
+            "esri/Graphic",
+            "esri/smartMapping/statistics/summaryStatistics",
+            "esri/widgets/Expand",
+            "esri/widgets/Editor",
+            "esri/renderers/UniqueValueRenderer",
+            "esri/widgets/Bookmarks",
+            "esri/geometry/geometryEngine",
+            "esri/layers/support/FeatureFilter",
+            "esri/smartMapping/renderers/type",
+            "esri/widgets/FeatureTable",
+            "esri/core/reactiveUtils",
+            "esri/layers/ImageryLayer"
+        ], (
+            Map,
+            MapView,
+            FeatureLayer,
+            Legend,
+            GeoJSONLayer,
+            Home,
+            colorRendererCreator,
+            colorSymbology,
+            colorRamps,
+            Graphic,
+            SummaryStatistics,
+            Expand,
+            Editor,
+            UniqueValueRenderer,
+            Bookmarks,
+            geometryEngine,
+            FeatureFilter,
+            typeRendererCreator,
+            FeatureTable,
+            reactiveUtils,
+            ImageryLayer
+
+        ) => {
+
+            let geometry;
+            const projectsLyr = new FeatureLayer({
+                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPDemo/FeatureServer/0",
+                title: "Projects"
+            });
+            const gridLines = new FeatureLayer({
+                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6",
+                title: "Grid lines"
+            });
+
+
+            const gridPoints = new FeatureLayer({
+                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18",
+                title: "Field points",
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-marker",
+                        size: 6,
+                        color: "blue",
+                        outline: {
+                            width: 0.5,
+                            color: "black"
+                        }
+                    }
+                }
+            });
+
+            const map = new Map({
+                basemap: "satellite",
+            });
+
+            const view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: [30, 20],
+                zoom: 5,
+
+            });
+
+            map.addMany([gridLines, gridPoints, projectsLyr])
+
+            const directionParams = {
+                layer: gridLines,
+                view: view,
+                field: "Direction",
+                legendOptions: {
+                    title: "Direction"
+                }
+            };
+
+            typeRendererCreator
+                .createRenderer(directionParams)
+                .then((response) => {
+                    response.renderer.defaultSymbol = null
+                    gridLines.renderer = response.renderer;
+                    if (!map.layers.includes(gridLines)) {
+                        map.add(gridLines);
+                    }
+                })
+                .catch((error) => {
+                    console.error("there was an error: ", error);
+                });
+
+            const typeParams = {
+                layer: projectsLyr,
+                view: view,
+                field: "Type",
+                legendOptions: {
+                    title: "Type"
+                }
+            };
+
+            typeRendererCreator
+                .createRenderer(typeParams)
+                .then((response) => {
+                    response.renderer.uniqueValueInfos.map(each => {
+                        each.symbol.color['a'] = 0.5;
+                        each.symbol.outline = {
+                            width: 0.5,
+                            color: 'black'
+                        }
+                    })
+
+                    response.renderer.defaultSymbol = null
+                    projectsLyr.renderer = response.renderer;
+                    if (!map.layers.includes(projectsLyr)) {
+                        map.add(projectsLyr);
+                    }
+                })
+                .catch((error) => {
+                    console.error("there was an error: ", error);
+                });
+
+            const getLayerView = (layer) => {
+                return view
+                    .whenLayerView(layer)
+            }
+
+            const excludeOutsideFeatures = (layer, geometry) => {
+                getLayerView(layer)
+                    .then((returnedLayerView) => {
+                        let layerView = returnedLayerView;
+                        layerView.filter = new FeatureFilter({
+                            spatialRelationship: "intersects",
+                            geometry: geometry,
+                        });
+                    })
+            }
+
+            let legend = new Legend({
+                view: view,
+            })
+            let homeWidget = new Home({ view: view });
+            let bookmarks = new Bookmarks({
+                view: view,
+                editingEnabled: true,
+                visibleElements: {
+                    time: false
+                }
+            });
+
+            const bkExpand = new Expand({
+                view: view,
+                content: bookmarks,
+                expandTooltip: "Expand bookmarks",
+                expanded: false
+            });
+
+
+            const legendExpand = new Expand({
+                view: view,
+                content: legend,
+                expandTooltip: "Expand legend",
+                expanded: false
+            });
+
+            view.ui.add(bkExpand, "top-left");
+            view.ui.add(homeWidget, "top-left");
+            view.ui.add(legendExpand, "top-left");
+            view.ui.add("buttonDiv", "top-right")
+
+            view.when(() => {
+
+
+                let pointsFeatures = []
+                let pointsFields = [{
+                    name: "ObjectID_1",
+                    alias: "ObjectID",
+                    type: "oid",
+                },
+                {
+                    name: "X",
+                    alias: "X",
+                    type: "double",
+                },
+                {
+                    name: "Y",
+                    alias: "Y",
+                    type: "double",
+                },
+                {
+                    name: "elevation",
+                    alias: "Elevation",
+                    type: "double",
+                },
+                {
+                    name: "name",
+                    alias: "Name",
+                    type: "string",
+                },
+                {
+                    name: "WT",
+                    alias: "WT",
+                    type: "string",
+                },
+                {
+                    name: "K",
+                    alias: "K",
+                    type: "string",
+                },
+                {
+                    name: "L",
+                    alias: "L",
+                    type: "string",
+                },
+                {
+                    name: "GWS",
+                    alias: "GWS",
+                    type: "string",
+                },
+                {
+                    name: "Soil_Text",
+                    alias: "Soil Text",
+                    type: "string",
+                },
+                {
+                    name: "Clay",
+                    alias: "Clay",
+                    type: "string",
+                },
+                {
+                    name: "EC",
+                    alias: "EC",
+                    type: "string",
+                },
+                {
+                    name: "sn",
+                    alias: "sn",
+                    type: "string",
+                },
+                {
+                    name: "CaCO3",
+                    alias: "CaCO3",
+                    type: "string",
+                }
+                ]
+
+                projectsLyr.queryFeatures().then(function (results) {
+                    geometry = results.features[results.features.length - 1].geometry;
+                }).then(() => {
+
+                    projectsLyr.queryFeatures().then(function (results) {
+                        view.goTo(geometry, { duration: 2500 });
+                    });
+
+                    excludeOutsideFeatures(gridLines, geometry)
+                    excludeOutsideFeatures(gridPoints, geometry)
+
+                }).then(() => {
+                    getLayerView(gridPoints)
+                        .then((returnedLayerView) => {
+
+                            let query = gridPoints.createQuery();
+                            query.geometry = geometry
+                            query.spatialRelationship = "intersects";
+                            query.returnGeometry = true;
+                            query.outFields = ["*"];
+
+                            gridPoints.queryFeatures(query)
+                                .then(function (response) {
+                                    let newLyr;
+                                    let intersectsPoints = response.features
+                                    intersectsPoints.forEach(point => {
+                                        let pointCenter = point.geometry.extent.center;
+                                        pointsFeatures.push(
+                                            new Graphic({
+                                                geometry: point.geometry,
+                                                attributes:
+                                                {
+                                                    elevation: point.attributes.elevation,
+                                                    name: point.attributes.name,
+                                                    X: pointCenter.x,
+                                                    Y: pointCenter.y
+                                                    // WT: point.attributes.WT,
+                                                    // K: point.attributes.K,
+                                                    // L: point.attributes.L,
+                                                    // GWS: point.attributes.GWS,
+                                                    // Soil_Text: point.attributes.Soil_Text,
+                                                    // Clay: point.attributes.Clay,
+                                                    // sn: point.attributes.sn,
+                                                    // EC: point.attributes.EC,
+                                                    // CaCO3: point.attributes.CaCO3,
+                                                }
+                                                ,
+                                            })
+                                        );
+                                        newlyr = new FeatureLayer({
+                                            source: pointsFeatures,
+                                            objectIdField: "ObjectID_1",
+                                            fields: pointsFields,
+                                        });
+                                    })
+
+                                    const appContainer = document.getElementById("appContainer");
+                                    const tableContainer = document.getElementById("tableContainer");
+                                    const tableDiv = document.getElementById("tableDiv");
+
+                                    let featureTable;
+                                    const checkboxEle = document.getElementById("checkboxId");
+                                    const labelText = document.getElementById("labelText");
+                                    view.ui.add(document.getElementById("mainDiv"), "top-right");
+
+                                    checkboxEle.onchange = () => {
+                                        toggleFeatureTable();
+                                    };
+
+                                    featureTable = new FeatureTable({
+                                        view: view,
+                                        layer: newlyr,
+                                        tableTemplate: {
+
+                                        },
+                                        container: tableDiv
+                                    });
+                                  
+                                    document.getElementById("mainDiv").style.visibility = "visible"
+
+                                    function toggleFeatureTable() {
+                                        if (!checkboxEle.checked) {
+                                            appContainer.removeChild(tableContainer);
+                                            labelText.innerHTML = "Show elevation points table";
+                                        } else {
+                                            appContainer.appendChild(tableContainer);
+                                            labelText.innerHTML = "Hide elevation points table";
+                                        }
+                                    }
+                                })
+                        });
+                })
+            })
+
+            const displayResult = (cssClassName, message) => {
+
+                var infoDiv = document.getElementById("info");
+                infoDiv.className = ""
+                infoDiv.textContent = ''
+
+                setTimeout(function () {
+                    infoDiv.className = `esri-widget esri-component ${cssClassName}`
+                    const node = document.createElement("div");
+                    node.innerHTML = message
+                    node.className = `infoStyle ${cssClassName}`
+                    infoDiv.appendChild(node);
+                }, 1000)
+            }
+            let layer = new ImageryLayer({
+                // URL to the imagery service
+                url: "https://landscape6.arcgis.com/arcgis/rest/services/World_Elevation_GMTED/ImageServer"
+            });
+            map.layers.add(layer, 0)
+
+            document.getElementById("ShareBtn").addEventListener("click", () => {
+
+                document.getElementById("buttonDiv").style.display = "none"
+                displayResult("success", " Investigation team notified ")
+            })
+
+        });
+    </script>
+
+</head>
+
+<body>
+    
+<ul>
+    <li><a class="active" href="#">Export</a></li>
+    <li><a  href="Import.html">Import</a></li>
+
+</ul>
+    <div id="appContainer">
+        <div id="viewDiv"></div>
+        <div id="tableContainer" class="container">
+            <div id="tableDiv"></div>
+        </div>
+        <div style="visibility: hidden;" id="mainDiv" class="esri-widget">
+            <label class="switch">
+                <input id="checkboxId" type="checkbox" checked="yes" />
+                <span class="slider round"></span>
+            </label>
+            <label class="labelText" id="labelText">Hide elevation points table</label>
+            <div id="info" class="esri-widget infoAlert"> </div>
+        </div>
+
+        <div id="buttonDiv" class="esri-widget">
+            <label>Share data to investigation team</label>
+            <button id="ShareBtn" class="esri-widget esri-button">Share</button>
+        </div>
+    </div>
+</body>
+
+</html>

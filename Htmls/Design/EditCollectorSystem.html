@@ -403,6 +403,18 @@
             const manholes = new FeatureLayer({
                 url: features[9]['url'],
                 title: features[9]['name'],
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-marker",
+                        size: 9 ,
+                        color: "white",
+                        outline: {
+                            width: 0.5,
+                            color: "black"
+                        }
+                    }
+                },
                 popupTemplate: {
                     title: "Number: {No}",
                     content: [

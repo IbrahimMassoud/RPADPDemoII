@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <title>
-        Draw laterals
+       Notes
     </title>
     <link rel="icon" href="../../Images/EPADPLogo.png">
 
@@ -352,6 +352,26 @@
 
             });
 
+            const notesLayer = new FeatureLayer({
+                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPCollector/FeatureServer/2",
+                title: "Notes",
+                popupTemplate: {
+                    title: "Added Note",
+                    content: [
+                        {
+                            type: "fields",
+                            fieldInfos: [
+                                {
+                                    fieldName: "Note",
+                                    label: "Describtion"
+                                }
+                            ]
+                        }
+                    ]
+                }
+        
+            });
+
             const collectors = new FeatureLayer({
                 url: features[7]['url'],
                 title: features[7]['name'],
@@ -403,18 +423,18 @@
             const manholes = new FeatureLayer({
                 url: features[9]['url'],
                 title: features[9]['name'],
-                    renderer: {
-                        type: "simple",
-                        symbol: {
-                            type: "simple-marker",
-                            size: 9 ,
-                            color: "white",
-                            outline: {
-                                width: 0.5,
-                                color: "black"
-                            }
+                renderer: {
+                    type: "simple",
+                    symbol: {
+                        type: "simple-marker",
+                        size: 9 ,
+                        color: "white",
+                        outline: {
+                            width: 0.5,
+                            color: "black"
                         }
-                    },
+                    }
+                },
                 popupTemplate: {
                     title: "Number: {No}",
                     content: [
@@ -514,7 +534,8 @@
                 laterals,
                 collectors,
                 gridPoints,
-                manholes
+                manholes,
+                notesLayer
             ]
             map.addMany(layers)
 
@@ -540,28 +561,6 @@
                     console.error("there was an error: ", error);
                 });
 
-            //     const manholesParams = {
-            //     layer: manholes,
-            //     view: view,
-            //     field: "Type",
-            //     legendOptions: {
-            //         title: "Type"
-            //     }
-            // };    
-            // typeRendererCreator
-            //     .createRenderer(manholesParams)
-            //     .then((response) => {
-            //         response.renderer.defaultSymbol = null
-            //         manholes.renderer = response.renderer;
-            //         if (!map.layers.includes(manholes)) {
-            //             map.add(manholes);
-            //         }
-            //     })
-            //     .catch((error) => {
-            //         console.error("there was an error: ", error);
-            //     });
-            
-
             const getLayerView = (layer) => {
                 return view
                     .whenLayerView(layer)
@@ -577,6 +576,35 @@
                         });
                     })
             }
+
+            // const lyrInfos = {
+            //   layer: notesLayer,
+            //   formTemplate: {
+            //     // autocasts to FormTemplate
+            //     elements: [
+            //       {
+            //         // autocasts to FieldElement
+            //         type: "field",
+            //         fieldName: "Note",
+            //         label: "Note"
+            //       }
+            //     ]
+            //   }
+            // };
+            const editor = new Editor({
+                view: view,
+                // layerInfos: [lyrInfos]
+            });
+
+              const editorExpand = new Expand({
+                view: view,
+                content: editor,
+                expandTooltip: "Expand editor",
+                expanded: false
+            });
+            view.ui.add(editorExpand, "top-right");
+
+
 
             let legend = new Legend({
                 view: view,
@@ -672,18 +700,6 @@
 </head>
 
 <body>
-
-    <header>
-        <ul>
-            <li><a href="LoadingFieldInvestigationData.html">Field Investigation Data</a></li>
-            <li><a href="CreateCollectorSystemBoundry.html">Collector system boundry</a></li>
-            <li><a href="DesignCollectorSystem.html">Design collector system</a></li>
-            <li><a class="active"  href="#">Draw laterals</a></li>
-            <li><a href="EditCollectorSystem.html">Edit collector system</a></li>
-            <!-- <li><a href="EditLaterals.html">Edit laterals</a></li> -->
-        </ul>
-    </header>
-
     
     <div id="appContainer">
         <div id="viewDiv"></div>

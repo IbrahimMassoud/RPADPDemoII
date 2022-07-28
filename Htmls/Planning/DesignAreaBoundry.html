@@ -77,6 +77,8 @@
       "esri/layers/support/FeatureFilter",
       "esri/smartMapping/renderers/type",
       "esri/widgets/LayerList",
+      "esri/webmap/Bookmark",
+
     ], (
       Map,
       MapView,
@@ -96,7 +98,9 @@
       geometryEngine,
       FeatureFilter,
       typeRendererCreator,
-      LayerList
+      LayerList,
+      Bookmark
+
 
     ) => {
 
@@ -127,6 +131,10 @@
           {
             url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/2',
             name: 'Lines'
+          },
+          {
+            url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/4',
+            name: 'Area Boundary'
           },
         ]
 
@@ -301,7 +309,24 @@
         editingEnabled: true,
         visibleElements: {
           time: false
-        }
+        },
+        bookmarks: [
+                    new Bookmark({
+                        name: "Study area",
+                        viewpoint: {
+                            targetGeometry: {
+                                type: "extent",
+                                spatialReference: {
+                                    wkid: 102100
+                                },
+                                xmax: 3436236.4074857184,
+                                xmin: 3425497.005011665,
+                                ymax: 3656553.996376439,
+                                ymin: 3647935.721437297,
+                            }
+                        }
+                    }),
+                ]
       });
 
       const bkExpand = new Expand({
@@ -353,7 +378,6 @@
       view.ui.add(legendExpand, "top-left");
       // view.ui.add('nextBtn', "top-right");
 
-
       view.when(() => {
         editor.messages['createFeatures'] = " ";
         editor.messages['editFeatures'] = "Edit projects";
@@ -361,9 +385,9 @@
         editor.messages['selectFeature'] = "select project";
         editor.messages['selectFeatureToEdit'] = "Select a project to start editing"
 
-        document.getElementById("nextBtn").addEventListener("click", () => {
-          window.location.href = "ElevationGrid.html";
-        })
+        // document.getElementById("nextBtn").addEventListener("click", () => {
+        //   window.location.href = "ElevationGrid.html";
+        // })
       })
     });
   </script>

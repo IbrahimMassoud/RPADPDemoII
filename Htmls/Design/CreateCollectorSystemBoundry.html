@@ -1,0 +1,461 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>
+        Collector system boundry
+    </title>
+    <link rel="icon" href="../../Images/EPADPLogo.png">
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.23/"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            flex: 1;
+        }
+
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .esri-popup--is-docked-top-right .esri-popup__main-container {
+            max-height: 100%;
+        }
+
+        #appContainer {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 22px;
+            vertical-align: middle;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: 0.4s;
+            transition: 0.4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 1px;
+            background-color: white;
+            -webkit-transition: 0.4s;
+            transition: 0.4s;
+        }
+
+        input:checked+.slider {
+            background-color: #2196f3;
+        }
+
+        input:focus+.slider {
+            box-shadow: 0 0 1px #2196f3;
+        }
+
+        input:checked+.slider:before {
+            -webkit-transform: translateX(20px);
+            -ms-transform: translateX(20px);
+            transform: translateX(20px);
+        }
+
+        /* Rounded sliders */
+
+        .slider.round {
+            border-radius: 20px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .labelText {
+            padding-left: 5px;
+            font-size: 15px;
+        }
+
+        #mainDiv {
+            padding: 8px;
+        }
+
+
+        #info {
+            border-radius: 0px;
+            padding: 15px 15px;
+        }
+
+        .infoStyle {
+            background-color: white;
+            border-radius: 5px;
+            font-size: larger;
+            font-weight: 700;
+        }
+
+        header ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        header li {
+            float: left;
+            border-right: 1px solid #bbb;
+        }
+
+        li:last-child {
+            border-right: none;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        li a:hover:not(.active) {
+            background-color: #111;
+        }
+
+        .active {
+            background-color: #04AA6D;
+        }
+    </style>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/Legend",
+            "esri/layers/GeoJSONLayer",
+            "esri/widgets/Home",
+            "esri/smartMapping/renderers/color",
+            "esri/smartMapping/symbology/color",
+            "esri/smartMapping/symbology/support/colorRamps",
+            "esri/Graphic",
+            "esri/smartMapping/statistics/summaryStatistics",
+            "esri/widgets/Expand",
+            "esri/widgets/Editor",
+            "esri/renderers/UniqueValueRenderer",
+            "esri/widgets/Bookmarks",
+            "esri/geometry/geometryEngine",
+            "esri/layers/support/FeatureFilter",
+            "esri/smartMapping/renderers/type",
+            "esri/widgets/FeatureTable",
+            "esri/core/reactiveUtils",
+            "esri/layers/ImageryLayer",
+            "esri/webmap/Bookmark",
+            "esri/widgets/LayerList",
+            "esri/layers/support/LabelClass"
+        ], (
+            Map,
+            MapView,
+            FeatureLayer,
+            Legend,
+            GeoJSONLayer,
+            Home,
+            colorRendererCreator,
+            colorSymbology,
+            colorRamps,
+            Graphic,
+            SummaryStatistics,
+            Expand,
+            Editor,
+            UniqueValueRenderer,
+            Bookmarks,
+            geometryEngine,
+            FeatureFilter,
+            typeRendererCreator,
+            FeatureTable,
+            reactiveUtils,
+            ImageryLayer,
+            Bookmark,
+            LayerList,
+            LabelClass
+
+        ) => {
+
+            let geometry, intersectsPoints, id;
+            let features =
+                [
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/3',
+                        name: 'Polygons 5000'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/0',
+                        name: 'Polygons'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/1',
+                        name: 'Lines 5000'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6',
+                        name: 'Grid lines'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18',
+                        name: 'Field points'
+                    },
+
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/2',
+                        name: 'Lines'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/14',
+                        name: 'Collector Boundary'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/13',
+                        name: 'Collectors'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/4',
+                        name: 'Area Boundary'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/9',
+                        name: 'Manholes'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/10',
+                        name: 'Laterals'
+                    }
+                ]
+
+            const collectorBoundry = new FeatureLayer({
+                url: features[6]['url'],
+                title: features[6]['name'],
+                definitionExpression: "Id = '4'"
+
+            });
+
+            const areaBoundry = new FeatureLayer({
+                url: features[8]['url'],
+                title: features[8]['name']
+            });
+
+            const collectorSystemBoundry = new FeatureLayer({
+                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPCollector/FeatureServer/0",
+                title: "Collector System Boundry"
+            });
+
+            const map = new Map({
+                basemap: "satellite",
+            });
+
+            const view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: [30, 20],
+                zoom: 5,
+
+            });
+
+            let layers = [
+                areaBoundry,
+                // collectorBoundry,
+                collectorSystemBoundry,
+            ]
+            map.addMany(layers)
+
+            const getLayerView = (layer) => {
+                return view
+                    .whenLayerView(layer)
+            }
+
+            const typeParams = {
+                layer: collectorSystemBoundry,
+                view: view,
+                field: "DrainSide",
+                legendOptions: {
+                    title: "DrainSide "
+                }
+            };
+
+            typeRendererCreator
+                .createRenderer(typeParams)
+                .then((response) => {
+                    response.renderer.uniqueValueInfos.map(each => {
+                        each.symbol.color['a'] = 0.5;
+                        each.symbol.outline = {
+                            width: 0.5,
+                            color: 'black'
+                        }
+                    })
+
+                    response.renderer.defaultSymbol = null
+                    collectorSystemBoundry.renderer = response.renderer;
+                    if (!map.layers.includes(collectorSystemBoundry)) {
+                        map.add(collectorSystemBoundry);
+                    }
+                })
+                .catch((error) => {
+                    console.error("there was an error: ", error);
+                });
+
+
+            const editor = new Editor({
+                view : view
+            });
+            
+
+            let legend = new Legend({
+                view: view,
+            })
+            let homeWidget = new Home({ view: view });
+            let bookmarks = new Bookmarks({
+                view: view,
+                editingEnabled: true,
+                visibleElements: {
+                    time: false
+                },
+                bookmarks: [
+                    new Bookmark({
+                        name: "Study area",
+                        viewpoint: {
+                            targetGeometry: {
+                                type: "extent",
+                                spatialReference: {
+                                    wkid: 102100
+                                },
+                                xmax: 3436236.4074857184,
+                                xmin: 3425497.005011665,
+                                ymax: 3656553.996376439,
+                                ymin: 3647935.721437297,
+                            }
+                        }
+                    }),
+                ]
+            });
+
+            const bkExpand = new Expand({
+                view: view,
+                content: bookmarks,
+                expandTooltip: "Expand bookmarks",
+                expanded: false
+            });
+
+
+            const legendExpand = new Expand({
+                view: view,
+                content: legend,
+                expandTooltip: "Expand legend",
+                expanded: false
+            });
+            let layerList = new LayerList({
+                view: view
+            });
+
+            const layerListExpand = new Expand({
+                view: view,
+                content: layerList,
+                expandTooltip: "Expand layer list",
+                expanded: false
+            });
+
+            const editorExpand = new Expand({
+                view: view,
+                content: editor,
+                expandTooltip: "Expand collector system Boundry editor",
+                expanded: false
+            });
+
+            view.ui.add(layerListExpand, "top-left");
+            view.ui.add(bkExpand, "top-left");
+            view.ui.add(homeWidget, "top-left");
+            view.ui.add(legendExpand, "top-left");
+            view.ui.add(editorExpand, "top-right");
+
+
+
+            view.when(() => {
+
+                areaBoundry.queryFeatures().then(function (results) {
+                    geometry = results.features[1].geometry; //the 4th one
+                }).then(() => {
+
+                    collectorBoundry.queryFeatures().then(function (results) {
+                        view.goTo(geometry, { duration: 2500 });
+                    });
+                })
+             
+           
+            })
+
+
+            // let layer = new ImageryLayer({
+            //     // URL to the imagery service
+            //     url: "https://landscape6.arcgis.com/arcgis/rest/services/World_Elevation_GMTED/ImageServer"
+            // });
+            // map.layers.add(layer, 0)
+
+        });
+    </script>
+
+</head>
+
+<body>
+
+    <header>
+        <ul>
+            <li><a href="LoadingFieldInvestigationData.html">Field Investigation Data</a></li>
+            <li><a class="active" href="#">Collector system boundry</a></li>
+            <li><a href="DesignCollectorSystem.html">Design collector system</a></li>
+            <li><a href="DrawLaterals.html">Draw laterals</a></li>
+            <li><a href="EditCollectorSystem.html">Edit collector system</a></li>
+            <!-- <li><a href="EditLaterals.html">Edit laterals</a></li> -->
+        </ul>
+    </header>
+
+    <div id="appContainer">
+        <div id="viewDiv"></div>
+</body>
+
+</html>

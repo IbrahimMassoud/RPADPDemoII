@@ -94,6 +94,7 @@
       "esri/geometry/geometryEngine",
       "esri/layers/support/FeatureFilter",
       "esri/smartMapping/renderers/type",
+      "esri/webmap/Bookmark"
     ], (
       Map,
       MapView,
@@ -113,6 +114,7 @@
       geometryEngine,
       FeatureFilter,
       typeRendererCreator,
+      Bookmark
 
     ) => {
 
@@ -137,23 +139,40 @@
       })
 
       let homeWidget = new Home({ view: view });
-      let bookmarks = new Bookmarks({
-        view: view,
-        editingEnabled: true,
-        visibleElements: {
-          time: false
-        }
-      });
+      // let bookmarks = new Bookmarks({
+      //   view: view,
+      //   editingEnabled: true,
+      //   visibleElements: {
+      //     time: false
+      //   },
+      //   bookmarks: [
+      //               new Bookmark({
+      //                   name: "Study area",
+      //                   viewpoint: {
+      //                       targetGeometry: {
+      //                           type: "extent",
+      //                           spatialReference: {
+      //                               wkid: 102100
+      //                           },
+      //                           xmax: 3436236.4074857184,
+      //                           xmin: 3425497.005011665,
+      //                           ymax: 3656553.996376439,
+      //                           ymin: 3647935.721437297,
+      //                       }
+      //                   }
+      //               }),
+      //           ]
+      // });
 
-      const bkExpand = new Expand({
-        view: view,
-        content: bookmarks,
-        expandTooltip: "Expand bookmarks",
-        expanded: false
-      });
+      // const bkExpand = new Expand({
+      //   view: view,
+      //   content: bookmarks,
+      //   expandTooltip: "Expand bookmarks",
+      //   expanded: false
+      // });
 
 
-      view.ui.add(bkExpand, "top-left");
+      // view.ui.add(bkExpand, "top-left");
       view.ui.add(homeWidget, "top-left");
 
     });

@@ -4,14 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <title>
-        Loading Field Investigation Data
+        Edit laterals
     </title>
     <link rel="icon" href="../../Images/EPADPLogo.png">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css" />
     <script src="https://js.arcgis.com/4.23/"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
         #viewDiv {
@@ -117,7 +118,20 @@
             padding: 8px;
         }
 
-        #appContainer ul {
+
+        #info {
+            border-radius: 0px;
+            padding: 15px 15px;
+        }
+
+        .infoStyle {
+            background-color: white;
+            border-radius: 5px;
+            font-size: larger;
+            font-weight: 700;
+        }
+
+        header ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
@@ -125,7 +139,7 @@
             background-color: #333;
         }
 
-        #appContainer li {
+        header li {
             float: left;
             border-right: 1px solid #bbb;
         }
@@ -174,7 +188,9 @@
             "esri/widgets/FeatureTable",
             "esri/core/reactiveUtils",
             "esri/layers/ImageryLayer",
-            "esri/webmap/Bookmark"
+            "esri/webmap/Bookmark",
+            "esri/widgets/LayerList",
+            "esri/layers/support/LabelClass"
         ], (
             Map,
             MapView,
@@ -197,38 +213,236 @@
             FeatureTable,
             reactiveUtils,
             ImageryLayer,
-            Bookmark
+            Bookmark,
+            LayerList,
+            LabelClass
 
         ) => {
 
-            let geometry, id;
+            let geometry, intersectsPoints, id;
+            let features =
+                [
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/3',
+                        name: 'Polygons 5000'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/0',
+                        name: 'Polygons'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/1',
+                        name: 'Lines 5000'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6',
+                        name: 'Grid lines'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18',
+                        name: 'Field points'
+                    },
 
-            const projectsLyr = new FeatureLayer({
-                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPDemo/FeatureServer/0",
-                title: "Projects"
-            });
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/2',
+                        name: 'Lines'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/14',
+                        name: 'Collector Boundary'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/13',
+                        name: 'Collectors'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/4',
+                        name: 'Area Boundary'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/9',
+                        name: 'Manholes'
+                    },
+                    {
+                        url: 'https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/10',
+                        name: 'Laterals'
+                    }
+                ]
+
             const gridLines = new FeatureLayer({
-                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/6",
-                title: "Grid lines"
+                url: features[3]['url'],
+                title: features[3]['name']
             });
-
 
             const gridPoints = new FeatureLayer({
-                url: "https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/قاعدة_بيانات_منطقة_gdb/FeatureServer/18",
-                title: "Field points",
+                url: features[4]['url'],
+                title: features[4]['name'],
                 renderer: {
                     type: "simple",
                     symbol: {
                         type: "simple-marker",
-                        size: 6,
+                        size: 5,
                         color: "blue",
                         outline: {
                             width: 0.5,
                             color: "black"
                         }
                     }
+                },
+                popupTemplate: {
+                    title: "{NAME}",
+                    content: [
+                        {
+                            type: "fields",
+                            fieldInfos: [
+                                {
+                                    fieldName: "name",
+                                    label: "Name"
+                                },
+                                {
+                                    fieldName: "elevation",
+                                    label: "Elevation",
+                                    format: {
+                                        digitSeparator: true,
+                                        places: 2
+                                    }
+                                }
+                                ,
+                                {
+                                    fieldName: "WT",
+                                    label: "WT"
+                                }
+                                ,
+                                {
+                                    fieldName: "K",
+                                    label: "K",
+                                }
+                                ,
+                                {
+                                    fieldName: "L",
+                                    label: "L",
+                                },
+                                {
+                                    fieldName: "GWS",
+                                    label: "GWS",
+                                },
+                                {
+                                    fieldName: "Soil_Type",
+                                    label: "Soil Type",
+                                },
+                                {
+                                    fieldName: "Clay",
+                                    label: "Clay",
+                                },
+                                {
+                                    fieldName: "EC",
+                                    label: "EC",
+                                }
+                            ]
+                        }
+                    ]
                 }
             });
+
+            const collectorBoundry = new FeatureLayer({
+                url: features[6]['url'],
+                title: features[6]['name'],
+                definitionExpression: "Id = '4'"
+
+            });
+
+            const collectors = new FeatureLayer({
+                url: features[7]['url'],
+                title: features[7]['name']
+            });
+
+            const areaBoundry = new FeatureLayer({
+                url: features[8]['url'],
+                title: features[8]['name']
+            });
+
+            const manholes = new FeatureLayer({
+                url: features[9]['url'],
+                title: features[9]['name']
+            });
+
+            const laterals = new FeatureLayer({
+                url: features[10]['url'],
+                title: features[10]['name']
+            });
+
+            let pointsFeatures = []
+            let pointsFields = [{
+                name: "ObjectID_1",
+                alias: "ObjectID",
+                type: "oid",
+            },
+            {
+                name: "X",
+                alias: "X",
+                type: "double",
+            },
+            {
+                name: "Y",
+                alias: "Y",
+                type: "double",
+            },
+            {
+                name: "elevation",
+                alias: "Elevation",
+                type: "double",
+            },
+            {
+                name: "name",
+                alias: "Name",
+                type: "string",
+            },
+            {
+                name: "WT",
+                alias: "WT",
+                type: "string",
+            },
+            {
+                name: "K",
+                alias: "K",
+                type: "string",
+            },
+            {
+                name: "L",
+                alias: "L",
+                type: "string",
+            },
+            {
+                name: "GWS",
+                alias: "GWS",
+                type: "string",
+            },
+            {
+                name: "Soil_Text",
+                alias: "Soil Text",
+                type: "string",
+            },
+            {
+                name: "Clay",
+                alias: "Clay",
+                type: "string",
+            },
+            {
+                name: "EC",
+                alias: "EC",
+                type: "string",
+            },
+            {
+                name: "sn",
+                alias: "sn",
+                type: "string",
+            },
+            {
+                name: "CaCO3",
+                alias: "CaCO3",
+                type: "string",
+            }
+            ]
 
             const map = new Map({
                 basemap: "satellite",
@@ -242,7 +456,16 @@
 
             });
 
-            map.addMany([gridLines, gridPoints, projectsLyr])
+            let layers = [
+                gridLines,
+                areaBoundry,
+                collectorBoundry,
+                // laterals,
+                // collectors,
+                gridPoints,
+                // manholes
+            ]
+            map.addMany(layers)
 
             const directionParams = {
                 layer: gridLines,
@@ -266,51 +489,44 @@
                     console.error("there was an error: ", error);
                 });
 
-            const typeParams = {
-                layer: projectsLyr,
-                view: view,
-                field: "Type",
-                legendOptions: {
-                    title: "Type"
-                }
-            };
-
-            typeRendererCreator
-                .createRenderer(typeParams)
-                .then((response) => {
-                    response.renderer.uniqueValueInfos.map(each => {
-                        each.symbol.color['a'] = 0.5;
-                        each.symbol.outline = {
-                            width: 0.5,
-                            color: 'black'
-                        }
-                    })
-
-                    response.renderer.defaultSymbol = null
-                    projectsLyr.renderer = response.renderer;
-                    if (!map.layers.includes(projectsLyr)) {
-                        map.add(projectsLyr);
-                    }
-                })
-                .catch((error) => {
-                    console.error("there was an error: ", error);
-                });
-
             const getLayerView = (layer) => {
                 return view
                     .whenLayerView(layer)
             }
 
-            const excludeOutsideFeatures = (layer, geometry) => {
+            const excludeOutsideFeatures = (layer, geometry, relation) => {
                 getLayerView(layer)
                     .then((returnedLayerView) => {
                         let layerView = returnedLayerView;
                         layerView.filter = new FeatureFilter({
-                            spatialRelationship: "intersects",
+                            spatialRelationship: relation,
                             geometry: geometry,
                         });
                     })
             }
+
+            // const labelClass = {  // autocasts as new LabelClass()
+            //     symbol: {
+            //         type: "text",  // autocasts as new TextSymbol()
+            //         color: "white",
+            //         haloColor: "blue",
+            //         haloSize: 1,
+            //         font: {  // autocast as new Font()
+            //             family: "Ubuntu Mono",
+            //             size: 14,
+            //             weight: "bold"
+            //         }
+            //     },
+            //     labelPlacement: "above-right",
+            //     labelExpressionInfo: {
+            //         expression: "$feature.name"
+            //     },
+
+            // };
+            // getLayerView(gridPoints).then((re)=>{
+            //     gridPoints.labelingInfo = [labelClass];
+            // })
+
 
             let legend = new Legend({
                 view: view,
@@ -344,7 +560,7 @@
             const bkExpand = new Expand({
                 view: view,
                 content: bookmarks,
-                expandTooltip: "Expand bookmarks tooltip",
+                expandTooltip: "Expand bookmarks",
                 expanded: false
             });
 
@@ -355,98 +571,40 @@
                 expandTooltip: "Expand legend",
                 expanded: false
             });
+            let layerList = new LayerList({
+                view: view
+            });
 
+            const layerListExpand = new Expand({
+                view: view,
+                content: layerList,
+                expandTooltip: "Expand layer list",
+                expanded: false
+            });
+
+            view.ui.add(layerListExpand, "top-left");
             view.ui.add(bkExpand, "top-left");
             view.ui.add(homeWidget, "top-left");
             view.ui.add(legendExpand, "top-left");
+            view.ui.add('mainDiv', "top-right");
+
 
 
             view.when(() => {
 
-
-                let pointsFeatures = []
-                let pointsFields = [{
-                    name: "ObjectID_1",
-                    alias: "ObjectID",
-                    type: "oid",
-                },
-                {
-                    name: "X",
-                    alias: "X",
-                    type: "double",
-                },
-                {
-                    name: "Y",
-                    alias: "Y",
-                    type: "double",
-                },
-                {
-                    name: "elevation",
-                    alias: "Elevation",
-                    type: "double",
-                },
-                {
-                    name: "name",
-                    alias: "Name",
-                    type: "string",
-                },
-                {
-                    name: "WT",
-                    alias: "WT",
-                    type: "string",
-                },
-                {
-                    name: "K",
-                    alias: "K",
-                    type: "string",
-                },
-                {
-                    name: "L",
-                    alias: "L",
-                    type: "string",
-                },
-                {
-                    name: "GWS",
-                    alias: "GWS",
-                    type: "string",
-                },
-                {
-                    name: "Soil_Text",
-                    alias: "Soil Text",
-                    type: "string",
-                },
-                {
-                    name: "Clay",
-                    alias: "Clay",
-                    type: "string",
-                },
-                {
-                    name: "EC",
-                    alias: "EC",
-                    type: "string",
-                },
-                {
-                    name: "sn",
-                    alias: "sn",
-                    type: "string",
-                },
-                {
-                    name: "CaCO3",
-                    alias: "CaCO3",
-                    type: "string",
-                }
-                ]
-
-                projectsLyr.queryFeatures().then(function (results) {
-                    geometry = results.features[results.features.length - 1].geometry;
+                collectorBoundry.queryFeatures().then(function (results) {
+                    geometry = results.features[0].geometry; //the 4th one
                 }).then(() => {
 
-                    projectsLyr.queryFeatures().then(function (results) {
+                    collectorBoundry.queryFeatures().then(function (results) {
                         view.goTo(geometry, { duration: 2500 });
                     });
 
-                    excludeOutsideFeatures(gridLines, geometry)
-                    excludeOutsideFeatures(gridPoints, geometry)
+                    excludeOutsideFeatures(gridLines, geometry, "intersects")
+                    excludeOutsideFeatures(gridPoints, geometry, "intersects")
+                    // excludeOutsideFeatures(manholes, geometry,"intersects")
+                    // excludeOutsideFeatures(laterals, geometry,"contains")
+                    // excludeOutsideFeatures(collectors, geometry,"intersects")
 
                 }).then(() => {
                     getLayerView(gridPoints)
@@ -461,27 +619,27 @@
                             gridPoints.queryFeatures(query)
                                 .then(function (response) {
                                     let newLyr;
-                                    let intersectsPoints = response.features
+                                    intersectsPoints = response.features
                                     intersectsPoints.forEach(point => {
                                         let pointCenter = point.geometry.extent.center;
                                         pointsFeatures.push(
                                             new Graphic({
                                                 geometry: point.geometry,
-                                                attributes:// point.attributes
+                                                attributes:
                                                 {
                                                     elevation: point.attributes.elevation,
                                                     name: point.attributes.name,
                                                     X: pointCenter.x,
-                                                    Y: pointCenter.y
-                                                    // WT: point.attributes.WT,
-                                                    // K: point.attributes.K,
-                                                    // L: point.attributes.L,
-                                                    // GWS: point.attributes.GWS,
-                                                    // Soil_Text: point.attributes.Soil_Text,
-                                                    // Clay: point.attributes.Clay,
-                                                    // sn: point.attributes.sn,
-                                                    // EC: point.attributes.EC,
-                                                    // CaCO3: point.attributes.CaCO3,
+                                                    Y: pointCenter.y,
+                                                    WT: point.attributes.WT,
+                                                    K: point.attributes.K,
+                                                    L: point.attributes.L,
+                                                    GWS: point.attributes.GWS,
+                                                    Soil_Text: point.attributes.Soil_Text,
+                                                    Clay: point.attributes.Clay,
+                                                    sn: point.attributes.sn,
+                                                    EC: point.attributes.EC,
+                                                    CaCO3: point.attributes.CaCO3,
                                                 }
                                                 ,
                                             })
@@ -496,26 +654,13 @@
                                     const appContainer = document.getElementById("appContainer");
                                     const tableContainer = document.getElementById("tableContainer");
                                     const tableDiv = document.getElementById("tableDiv");
-
-                                    let featureTable;
                                     const checkboxEle = document.getElementById("checkboxId");
-                                    const labelText = document.getElementById("labelText");
-                                    view.ui.add(document.getElementById("mainDiv"), "top-right");
+
+
 
                                     checkboxEle.onchange = () => {
                                         toggleFeatureTable();
                                     };
-
-                                    featureTable = new FeatureTable({
-                                        view: view,
-                                        layer: newlyr,
-                                        tableTemplate: {
-
-                                        },
-                                        container: tableDiv
-                                    });
-
-                                    document.getElementById("mainDiv").style.visibility = "visible"
 
                                     function toggleFeatureTable() {
                                         if (!checkboxEle.checked) {
@@ -526,6 +671,16 @@
                                             labelText.innerHTML = "Hide elevation points table";
                                         }
                                     }
+
+
+                                    let featureTable;
+                                    featureTable = new FeatureTable({
+                                        view: view,
+                                        layer: newlyr,
+                                        tableTemplate: {
+                                        },
+                                        container: tableDiv
+                                    });
 
                                     featureTable.on("selection-change", (changes) => {
                                         changes.removed.forEach((item) => {
@@ -561,13 +716,12 @@
                                             }
                                         }
                                     );
-
-                                    
                                 })
                         });
                 })
-
             })
+
+
             let layer = new ImageryLayer({
                 // URL to the imagery service
                 url: "https://landscape6.arcgis.com/arcgis/rest/services/World_Elevation_GMTED/ImageServer"
@@ -580,25 +734,31 @@
 </head>
 
 <body>
-    <div id="appContainer">
+
+    <header>
         <ul>
-            <li><a href="LoadingDigitalMap.html">Loading ESA Digital Map</a></li>
-            <li><a href="DesignAreaBoundry.html">Design area boundry</a></li>
-            <li><a href="ElevationGrid.html">Create elevation grids</a></li>
-            <li><a class="active" href="#">Create elevation points</a></li>
+            <li><a href="LoadingFieldInvestigationData.html">Field Investigation Data</a></li>
+            <li><a href="CreateCollectorSystemBoundry.html">Collector system boundry</a></li>
+            <li><a href="DesignCollectorSystem.html">Design collector system</a></li>
+            <li><a href="DrawLaterals.html">Draw laterals</a></li>
+            <li><a href="EditCollectorSystem.html">Edit collector system</a></li>
+            <li><a class="active" href="#">Edit laterals</a></li>
         </ul>
+    </header>
+
+    <div id="appContainer">
         <div id="viewDiv"></div>
         <div id="tableContainer" class="container">
             <div id="tableDiv"></div>
+
         </div>
-        <div style="visibility: hidden;" id="mainDiv" class="esri-widget">
+        <div id="mainDiv" class="esri-widget">
             <label class="switch">
                 <input id="checkboxId" type="checkbox" checked="yes" />
                 <span class="slider round"></span>
             </label>
             <label class="labelText" id="labelText">Hide elevation points table</label>
         </div>
-    </div>
 </body>
 
 </html>

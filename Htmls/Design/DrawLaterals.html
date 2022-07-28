@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <title>
-        Loading Field Investigation Data
+        Draw laterals
     </title>
     <link rel="icon" href="../../Images/EPADPLogo.png">
 
@@ -290,7 +290,7 @@
                     }
                 },
                 popupTemplate: {
-                    title: "{NAME}",
+                    title: "Name: {NAME}",
                     content: [
                         {
                             type: "fields",
@@ -342,14 +342,57 @@
                         }
                     ]
                 }
+        
             });
 
             const collectorBoundry = new FeatureLayer({
-                url:"https://services8.arcgis.com/QF1SFulWoGe9X2JG/arcgis/rest/services/EPADPDemo/FeatureServer/0",
-                // url:features[6]['url'],
+                url: features[6]['url'],
                 title: features[6]['name'],
-                // definitionExpression: "Id = '4'"
+                definitionExpression: "Id = '4'"
 
+            });
+
+            const collectors = new FeatureLayer({
+                url: features[7]['url'],
+                title: features[7]['name'],
+                popupTemplate: {
+                    title: "Name: {name }",
+                    content: [
+                        {
+                            type: "fields",
+                            fieldInfos: [
+                                {
+                                    fieldName: "Drain",
+                                    label: "Drain"
+                                },
+                                {
+                                    fieldName: "Kilo",
+                                    label: "Kilo",
+                                    format: {
+                                        digitSeparator: true,
+                                        places: 2
+                                    }
+                                }
+                                ,
+                                {
+                                    fieldName: "Type",
+                                    label: "Type"
+                                }
+                                ,
+                                {
+                                    fieldName: "Area",
+                                    label: "Area",
+                                }
+                                ,
+                                {
+                                    fieldName: "Direction",
+                                    label: "Direction",
+                                }   
+                            ]
+                        }
+                    ]
+                }
+        
             });
 
             const areaBoundry = new FeatureLayer({
@@ -357,78 +400,88 @@
                 title: features[8]['name']
             });
 
-            let pointsFeatures = []
-            let pointsFields = [{
-                name: "ObjectID_1",
-                alias: "ObjectID",
-                type: "oid",
-            },
-            {
-                name: "X",
-                alias: "X",
-                type: "double",
-            },
-            {
-                name: "Y",
-                alias: "Y",
-                type: "double",
-            },
-            {
-                name: "elevation",
-                alias: "Elevation",
-                type: "double",
-            },
-            {
-                name: "name",
-                alias: "Name",
-                type: "string",
-            },
-            {
-                name: "WT",
-                alias: "WT",
-                type: "string",
-            },
-            {
-                name: "K",
-                alias: "K",
-                type: "string",
-            },
-            {
-                name: "L",
-                alias: "L",
-                type: "string",
-            },
-            {
-                name: "GWS",
-                alias: "GWS",
-                type: "string",
-            },
-            {
-                name: "Soil_Text",
-                alias: "Soil Text",
-                type: "string",
-            },
-            {
-                name: "Clay",
-                alias: "Clay",
-                type: "string",
-            },
-            {
-                name: "EC",
-                alias: "EC",
-                type: "string",
-            },
-            {
-                name: "sn",
-                alias: "sn",
-                type: "string",
-            },
-            {
-                name: "CaCO3",
-                alias: "CaCO3",
-                type: "string",
-            }
-            ]
+            const manholes = new FeatureLayer({
+                url: features[9]['url'],
+                title: features[9]['name'],
+                popupTemplate: {
+                    title: "Number: {No}",
+                    content: [
+                        {
+                            type: "fields",
+                            fieldInfos: [
+                                {
+                                    fieldName: "Collector_no",
+                                    label: "Collector number"
+                                },
+                                {
+                                    fieldName: "Map_no",
+                                    label: "Map number",
+                                }
+                                ,
+                                {
+                                    fieldName: "Drain",
+                                    label: "Drain"
+                                }
+                                ,
+                                {
+                                    fieldName: "Index_",
+                                    label: "Index",
+                                }
+                                ,
+                                {
+                                    fieldName: "Manhole_Index",
+                                    label: "Manhole index ",
+                                }   
+                                ,
+                                {
+                                    fieldName: "Type",
+                                    label: "Type",
+                                }   
+                            ]
+                        }
+                    ]
+                }
+        
+            });
+
+            const laterals = new FeatureLayer({
+                url: features[10]['url'],
+                title: features[10]['name'],
+                popupTemplate: {
+                    title: "Name: {Name }",
+                    content: [
+                        {
+                            type: "fields",
+                            fieldInfos: [
+                                {
+                                    fieldName: "Collector",
+                                    label: "Collector"
+                                },
+                                {
+                                    fieldName: "Map_no",
+                                    label: "Map number",
+                                }
+                                ,
+                                {
+                                    fieldName: "Drain",
+                                    label: "Drain"
+                                }
+                                ,
+                                {
+                                    fieldName: "Index_",
+                                    label: "Index",
+                                }
+                                ,
+                                {
+                                    fieldName: "No",
+                                    label: "Number",
+                                }   
+                            ]
+                        }
+                    ]
+                }
+        
+            });
 
             const map = new Map({
                 basemap: "satellite",
@@ -446,7 +499,10 @@
                 gridLines,
                 areaBoundry,
                 collectorBoundry,
+                laterals,
+                collectors,
                 gridPoints,
+                manholes
             ]
             map.addMany(layers)
 
@@ -487,6 +543,20 @@
                         });
                     })
             }
+
+            // const editor = new Editor({
+            //     view : view,
+            // });
+
+            //   const editorExpand = new Expand({
+            //     view: view,
+            //     content: editor,
+            //     expandTooltip: "Expand editor",
+            //     expanded: false
+            // });
+            // view.ui.add(editorExpand, "top-right");
+
+
 
             let legend = new Legend({
                 view: view,
@@ -546,141 +616,26 @@
             view.ui.add(bkExpand, "top-left");
             view.ui.add(homeWidget, "top-left");
             view.ui.add(legendExpand, "top-left");
-            view.ui.add('mainDiv', "top-right");
+                // view.ui.add('mainDiv', "top-right");
 
 
 
             view.when(() => {
 
                 collectorBoundry.queryFeatures().then(function (results) {
-                    // geometry = results.features[0].geometry; //the 4th one
-                    geometry = results.features[results.features.length-1].geometry; //the 4th one
-
+                    geometry = results.features[0].geometry; //the 4th one
                 }).then(() => {
 
                     collectorBoundry.queryFeatures().then(function (results) {
                         view.goTo(geometry, { duration: 2500 });
-
-                        setTimeout(()=>{
-                            console.log(view)
-                        },3000)
                     });
 
                     excludeOutsideFeatures(gridLines, geometry, "intersects")
                     excludeOutsideFeatures(gridPoints, geometry, "intersects")
+                    excludeOutsideFeatures(manholes, geometry,"intersects")
+                    excludeOutsideFeatures(laterals, geometry,"contains")
+                    excludeOutsideFeatures(collectors, geometry,"intersects")
 
-                }).then(() => {
-                    getLayerView(gridPoints)
-                        .then((returnedLayerView) => {
-
-                            let query = gridPoints.createQuery();
-                            query.geometry = geometry
-                            query.spatialRelationship = "intersects";
-                            query.returnGeometry = true;
-                            query.outFields = ["*"];
-
-                            gridPoints.queryFeatures(query)
-                                .then(function (response) {
-                                    let newLyr;
-                                    intersectsPoints = response.features
-                                    intersectsPoints.forEach(point => {
-                                        let pointCenter = point.geometry.extent.center;
-                                        pointsFeatures.push(
-                                            new Graphic({
-                                                geometry: point.geometry,
-                                                attributes:
-                                                {
-                                                    elevation: point.attributes.elevation,
-                                                    name: point.attributes.name,
-                                                    X: pointCenter.x,
-                                                    Y: pointCenter.y,
-                                                    WT: point.attributes.WT,
-                                                    K: point.attributes.K,
-                                                    L: point.attributes.L,
-                                                    GWS: point.attributes.GWS,
-                                                    Soil_Text: point.attributes.Soil_Text,
-                                                    Clay: point.attributes.Clay,
-                                                    sn: point.attributes.sn,
-                                                    EC: point.attributes.EC,
-                                                    CaCO3: point.attributes.CaCO3,
-                                                }
-                                                ,
-                                            })
-                                        );
-                                        newlyr = new FeatureLayer({
-                                            source: pointsFeatures,
-                                            objectIdField: "ObjectID_1",
-                                            fields: pointsFields,
-                                        });
-                                    })
-
-                                    const appContainer = document.getElementById("appContainer");
-                                    const tableContainer = document.getElementById("tableContainer");
-                                    const tableDiv = document.getElementById("tableDiv");
-                                    const checkboxEle = document.getElementById("checkboxId");
-
-
-
-                                    checkboxEle.onchange = () => {
-                                        toggleFeatureTable();
-                                    };
-
-                                    function toggleFeatureTable() {
-                                        if (!checkboxEle.checked) {
-                                            appContainer.removeChild(tableContainer);
-                                            labelText.innerHTML = "Show elevation points table";
-                                        } else {
-                                            appContainer.appendChild(tableContainer);
-                                            labelText.innerHTML = "Hide elevation points table";
-                                        }
-                                    }
-
-
-                                    let featureTable;
-                                    featureTable = new FeatureTable({
-                                        view: view,
-                                        layer: newlyr,
-                                        tableTemplate: {
-                                        },
-                                        container: tableDiv
-                                    });
-
-                                    featureTable.on("selection-change", (changes) => {
-                                        changes.removed.forEach((item) => {
-                                            const data = pointsFeatures.find((data) => {
-                                                return data.feature === item.feature;
-                                            });
-                                        });
-
-                                        changes.added.forEach((item) => {
-                                            const feature = item.feature;
-                                            pointsFeatures.push({
-                                                feature: feature
-                                            });
-
-                                            if (
-                                                feature.attributes.OBJECTID_1 !== id &&
-                                                view.popup.visible === true
-                                            ) {
-                                                featureTable.deselectRows(selectedFeature);
-                                                view.popup.close();
-                                            }
-                                        });
-                                    });
-
-                                    reactiveUtils.watch(
-                                        () => view.popup.viewModel.active,
-                                        () => {
-                                            selectedFeature = view.popup.selectedFeature;
-                                            if (selectedFeature !== null && view.popup.visible !== false) {
-                                                featureTable.clearSelection();
-                                                featureTable.selectRows(view.popup.selectedFeature);
-                                                id = selectedFeature.getObjectId();
-                                            }
-                                        }
-                                    );
-                                })
-                        });
                 })
             })
 
@@ -700,28 +655,19 @@
 
     <header>
         <ul>
-            <li><a class="active"  href="#">Field Investigation Data</a></li>
+            <li><a href="LoadingFieldInvestigationData.html">Field Investigation Data</a></li>
             <li><a href="CreateCollectorSystemBoundry.html">Collector system boundry</a></li>
             <li><a href="DesignCollectorSystem.html">Design collector system</a></li>
-            <li><a href="DrawLaterals.html">Draw laterals</a></li>
+            <li><a class="active"  href="#">Draw laterals</a></li>
             <li><a href="EditCollectorSystem.html">Edit collector system</a></li>
             <!-- <li><a href="EditLaterals.html">Edit laterals</a></li> -->
         </ul>
     </header>
 
+    
     <div id="appContainer">
         <div id="viewDiv"></div>
-        <div id="tableContainer" class="container">
-            <div id="tableDiv"></div>
-
-        </div>
-        <div id="mainDiv" class="esri-widget">
-            <label class="switch">
-                <input id="checkboxId" type="checkbox" checked="yes" />
-                <span class="slider round"></span>
-            </label>
-            <label class="labelText" id="labelText">Hide elevation points table</label>
-        </div>
+    </div> 
 </body>
 
 </html>

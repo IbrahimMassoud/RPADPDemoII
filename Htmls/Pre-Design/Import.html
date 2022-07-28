@@ -238,7 +238,8 @@
             "esri/smartMapping/renderers/type",
             "esri/widgets/FeatureTable",
             "esri/core/reactiveUtils",
-            "esri/layers/ImageryLayer"
+            "esri/layers/ImageryLayer",
+            "esri/webmap/Bookmark"
         ], (
             Map,
             MapView,
@@ -260,7 +261,8 @@
             typeRendererCreator,
             FeatureTable,
             reactiveUtils,
-            ImageryLayer
+            ImageryLayer,
+            Bookmark
 
         ) => {
 
@@ -457,7 +459,24 @@
                 editingEnabled: true,
                 visibleElements: {
                     time: false
-                }
+                },
+                bookmarks: [
+                    new Bookmark({
+                        name: "Study area",
+                        viewpoint: {
+                            targetGeometry: {
+                                type: "extent",
+                                spatialReference: {
+                                    wkid: 102100
+                                },
+                                xmax: 3436236.4074857184,
+                                xmin: 3425497.005011665,
+                                ymax: 3656553.996376439,
+                                ymin: 3647935.721437297,
+                            }
+                        }
+                    }),
+                ]
             });
 
             const bkExpand = new Expand({
